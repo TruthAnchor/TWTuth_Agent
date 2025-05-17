@@ -1,33 +1,6 @@
-Piece	What it does	How it fits your project
-ITwitterFTSO oracle	on-chain Twitter sentiment score (0–100) from FTSO	You already scrape tweets and store them on IPFS; the FTSO gives you a decentralized, aggregated “tweetScore” you can trust in Solidity.
-IJsonApi proof	verifiable macroeconomic data (0–100) delivered as a JSON-API proof	You upload CSVs of tweet data; macro data (e.g. CPI, GDP growth) can be similarly fetched off-chain and submitted on-chain with a proof.
-CompositeSentimentConsumer	blends social (70%) + macro (30%) into one 18-dec fixed-point “composite”	Gives you a single on-chain indicator you can use to:
-Dynamically price your datasets (higher price when sentiment is bullish)
-
-Trigger governance proposals when the composite crosses thresholds
-
-Feed your “pricing agent” so it can adjust bids/offers automatically
-
-
-Deploying with: 0xD577F6C41780d0D47cF644297d10A15DCeE35223
-Keeper role will be granted to: 0xD577F6C41780d0D47cF644297d10A15DCeE35223
-PricePredictorOracle deployed to: 0x431ac67aCC345d42F27e2119aC92B4f6dAd69Ed4
-
-CompositeSentimentConsumer deployed to: 0x6eDb539fa857f96c6B2cD4DDd1654e8D8e90d06F
-
-  deployer: 0xD577F6C41780d0D47cF644297d10A15DCeE35223
-  keeper:    0xD577F6C41780d0D47cF644297d10A15DCeE35223
-MockTwitterFTSO deployed to: 0x30E0bbC0888e691c60232843fc80514f3538645d
-
-FTSO:
-Twitter-sentiment FTSO feed
-push sentiment into FTSO
-fetch macro data & call updateComposite(...)
-read out lastComposite
-
 # Advanced Twitter Sentiment & Crypto Pricing Platform
 
-This project is an advanced, modular, and interoperable platform designed to harness real-time Twitter sentiment paired with Flare's FTSO pricing data for predicting cryptocurrency price changes. By integrating a Twitter scraper with AI-driven tweet analysis, and on-chain data provenance via smart contracts, this project delivers a state-of-the-art solution that addresses modern challenges in data integrity, ethical data sourcing, and efficient AI deployment.
+This project is an advanced, modular, and interoperable platform designed to harness real-time Twitter sentiment for predicting cryptocurrency price changes. By integrating a Twitter scraper with AI-driven tweet analysis, decentralized storage on Filecoin, and on-chain data provenance via smart contracts, this project delivers a state-of-the-art solution that addresses modern challenges in data integrity, ethical data sourcing, and efficient AI deployment.
 
 ---
 
@@ -68,7 +41,7 @@ The platform collects tweets using an advanced scraper, analyzes tweet content u
 - **CSV Generation & CAR Conversion:**  
   After scraping, tweets are saved into a CSV file. This CSV is then converted into a CAR file using IPFS tools.
 - **Storacha Integration:**  
-  The CAR file is uploaded to Filecoin through Storacha, ensuring that every dataset has a verifiable and immutable record. This is then used to interact with our contract that creates the filecoin storage deal.
+  The CAR file is uploaded to Filecoin through Storacha, ensuring that every dataset has a verifiable and immutable record.
 
 ### 3. Crypto Pricing Model
 - **Historical & Sentiment Data:**  
@@ -79,14 +52,7 @@ The platform collects tweets using an advanced scraper, analyzes tweet content u
 ### 4. On-Chain Data Provenance & Governance
 - **Smart Contracts:**  
   - **AIDatasetRegistry:** Registers dataset metadata (title, CID, file size, description, price, Filecoin deal ID, preview) on-chain.  
-    _Deployed at:_ `0x8fa300Faf24b9B764B0D7934D8861219Db0626e5` https://calibration.filfox.info/en/address/0x8fa300Faf24b9B764B0D7934D8861219Db0626e5
-    
-Pin your file to IPFS via Pinata
-Bundle into a CAR
-Upload the CAR to StorAcha
-Kick off a Filecoin storage deal
-Call your on-chain contract
-
+    _Deployed at:_ `0x8fa300Faf24b9B764B0D7934D8861219Db0626e5`
     
   - **DatasetAccessAgent:** Allows users to request and gain access to datasets by paying a fee, with AI agents listening to emitted events for further processing.  
     _Deployed at:_ `0xf0f994B4A8dB86A46a1eD4F12263c795b26703Ca`
@@ -146,13 +112,13 @@ Call your on-chain contract
 
 
 # Future Roadmap
-**Real-Time Crypto Pricing API Integration:**
-Further integrate live market data feeds for enhanced trading insights.
-
-**Enhanced Data Attribution & Incentive Models:**
-Refine token-based incentive mechanisms through advanced DAO models to ensure fair compensation and transparency.
-
-Some of the smart contracts have not been fully tested or fully integrated into the overall platform. With more time, we intend to build out comprehensive testing and seamless integration for these contracts. Additionally, we have collected an extensive amount of historical data and are currently working on training our own model to be used in the pricing predictor agent. These improvements will be integrated into the overall implementation to further enhance the accuracy and reliability of market predictions.
-
-**Full Dataset Availability**
-Once bot is hosted with full uptime on a cron schedule, Build Data agent that can use the data dumps to create a clean stream of up-to-date data. This then interacts with DatasetAccessAgent contract, to store the full dataset, and allow people to purchase.
+| Deliverable                                      | Implementation                                                                                                                                                                                                                                     |
+|--------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Refine AI agents and LLM flow                    | Improve the controversy detection agent and introduce multimodal sentiment scoring using Hugging Face models such as `ProsusAI/finbert` and `cardiffnlp/twitter-roberta-base-sentiment`, potentially including fine-tuning on crypto-specific data |
+| Expand coin/ecosystem sentiment feeds            | Scale scraping to support all major coins and ecosystems; add an LLM agent to classify tweets by ecosystem or token; integrate broader on- and off-chain pricing APIs for richer analysis                                                         |
+| Voting flow → agent trigger integration          | Modify backend to distinguish between proposals to follow users vs. scrape ecosystems; use LLM agents to determine intent and trigger appropriate scraping logic                                                                                   |
+| Frontend integrations + analytics dashboards     | Finalize frontend integrations with voting contract, Filecoin, and IPFS; implement dashboards for viewing storage deals and tweet sentiment analytics                                                                                              |
+| Data cleaning + Filecoin archiving               | Add a post-run data cleaning agent and integrate its output with the Filecoin deal creation pipeline via AIDatasetRegistry                                                                                                                        |
+| Autonomous scheduling via governance             | Build mechanism for on-chain governance votes to auto-schedule new scraping runs or follow accounts                                                                                                                                                |
+| Backend hosted deployment                        | Deploy the scraping and analysis backend in a cloud environment (e.g., AWS) for continuous, reliable execution                                                                                                                                    |
+| User-initiated scraping jobs                     | Enable users to start scraping jobs via auxiliary Twitter accounts by interacting with a backend submission and scheduling interface                                                                                                               |
