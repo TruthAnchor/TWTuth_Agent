@@ -122,3 +122,9 @@ The platform collects tweets using an advanced scraper, analyzes tweet content u
 | Autonomous scheduling via governance             | Build mechanism for on-chain governance votes to auto-schedule new scraping runs or follow accounts                                                                                                                                                |
 | Backend hosted deployment                        | Deploy the scraping and analysis backend in a cloud environment (e.g., AWS) for continuous, reliable execution                                                                                                                                    |
 | User-initiated scraping jobs                     | Enable users to start scraping jobs via auxiliary Twitter accounts by interacting with a backend submission and scheduling interface                                                                                                               |
+
+
+
+MAINNET CONTRACTS:
+IP_DEPOSIT_CONTRACT_MAINNET=0x06Aa51D53e9a2218a934B5614B4D83AAEd694fFd
+TWEET_REGISTRY_CONTRACT=0x4CefBd73390F4738D2b94083dcE951745538e28B
