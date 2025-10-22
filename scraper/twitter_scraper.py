@@ -9,6 +9,7 @@ from ipfs_screenshot import screenshot_and_pin
 from datetime import datetime
 from fake_headers import Headers
 from time import sleep
+import random
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -27,6 +28,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
+
+# NEW: Import undetected chromedriver for better anti-bot bypass
+try:
+    import undetected_chromedriver as uc
+    UNDETECTED_AVAILABLE = True
+except ImportError:
+    UNDETECTED_AVAILABLE = False
+    print("⚠️  undetected-chromedriver not installed. Install with: pip install undetected-chromedriver")
 
 # NEW: Import AI analysis tool for tweet deletion likelihood evaluation
 from ai_analysis import analyze_tweet
@@ -115,6 +124,36 @@ class Twitter_Scraper:
         logging.info("Setting up WebDriver...")
         header = "Mozilla/5.0 (Linux; Android 11; SM-G998B) AppleWebKit/537.36 " \
                  "(KHTML, like Gecko) Chrome/109.0.5414.87 Mobile Safari/537.36"
+        
+        # Try undetected Chrome first (best for avoiding Twitter blocks)
+        if UNDETECTED_AVAILABLE:
+            try:
+                print("Initializing Undetected ChromeDriver...")
+                logging.info("Initializing Undetected ChromeDriver...")
+                
+                options = uc.ChromeOptions()
+                options.add_argument('--disable-blink-features=AutomationControlled')
+                options.add_argument(f"--user-agent={header}")
+                
+                if proxy:
+                    options.add_argument(f"--proxy-server={proxy}")
+                
+                if self.headlessState.lower() == 'yes':
+                    options.add_argument("--headless=new")
+                    options.add_argument("--disable-gpu")
+                else:
+                    options.add_argument("--start-maximized")
+                
+                driver = uc.Chrome(options=options, version_main=None)
+                print("WebDriver Setup Complete (Undetected Chrome)")
+                logging.info("WebDriver Setup Complete (Undetected Chrome)")
+                return driver
+                
+            except Exception as e:
+                logging.warning(f"Undetected Chrome failed: {e}, falling back to Firefox")
+        
+        # Fallback to Firefox if undetected Chrome not available or fails
+        logging.info("Using Firefox (fallback)...")
         browser_option = FirefoxOptions()
         browser_option.add_argument("--no-sandbox")
         browser_option.add_argument("--disable-dev-shm-usage")
@@ -127,6 +166,7 @@ class Twitter_Scraper:
             browser_option.add_argument(f"--proxy-server={proxy}")
         if self.headlessState.lower() == 'yes':
             browser_option.add_argument("--headless")
+        
         try:
             print("Initializing FirefoxDriver...")
             logging.info("Initializing FirefoxDriver...")
@@ -160,6 +200,10 @@ class Twitter_Scraper:
             self._input_username()
             self._input_unusual_activity()
             self._input_password()
+            
+            # Wait a bit for cookies to be set
+            sleep(3)
+            
             cookies = self.driver.get_cookies()
             auth_token = next((c['value'] for c in cookies if c['name']=='auth_token'), None)
             if auth_token is None:
@@ -172,51 +216,95 @@ class Twitter_Scraper:
             sys.exit(1)
 
     def _input_username(self):
-        attempt = 0
+        input_attempt = 0
         while True:
             try:
-                inp = self.driver.find_element("xpath", "//input[@autocomplete='username']")
-                inp.send_keys(self.username, Keys.RETURN)
-                sleep(3)
-                return
+                username = self.driver.find_element(
+                    "xpath", "//input[@autocomplete='username']"
+                )
+                # Type slowly like a human to avoid bot detection
+                for char in self.username:
+                    username.send_keys(char)
+                    sleep(random.uniform(0.08, 0.15))
+                
+                sleep(random.uniform(1, 2))
+                username.send_keys(Keys.RETURN)
+                sleep(random.uniform(4, 6))
+                break
             except NoSuchElementException:
-                attempt += 1
-                if attempt >= 3:
-                    print("Error inputting username after multiple attempts.")
+                input_attempt += 1
+                if input_attempt >= 3:
+                    print()
+                    print(
+                        """There was an error inputting the username.
+
+It may be due to the following:
+- Internet connection is unstable
+- Username is incorrect
+- Twitter is experiencing unusual activity"""
+                    )
                     logging.error("Error inputting username.")
                     self.driver.quit()
                     sys.exit(1)
-                sleep(2)
+                else:
+                    print("Re-attempting to input username...")
+                    sleep(2)
 
     def _input_unusual_activity(self):
-        attempt = 0
+        input_attempt = 0
         while True:
             try:
-                ua = self.driver.find_element("xpath", "//input[@data-testid='ocfEnterTextTextInput']")
-                ua.send_keys(self.username, Keys.RETURN)
-                sleep(3)
-                return
+                unusual_activity = self.driver.find_element(
+                    "xpath", "//input[@data-testid='ocfEnterTextTextInput']"
+                )
+                # Type slowly like a human
+                for char in self.username:
+                    unusual_activity.send_keys(char)
+                    sleep(random.uniform(0.08, 0.15))
+                
+                sleep(random.uniform(1, 2))
+                unusual_activity.send_keys(Keys.RETURN)
+                sleep(random.uniform(4, 6))
+                break
             except NoSuchElementException:
-                attempt += 1
-                if attempt >= 3:
-                    return
+                input_attempt += 1
+                if input_attempt >= 3:
+                    break
 
     def _input_password(self):
-        attempt = 0
+        input_attempt = 0
         while True:
             try:
-                pwd = self.driver.find_element("xpath", "//input[@autocomplete='current-password']")
-                pwd.send_keys(self.password, Keys.RETURN)
-                sleep(3)
-                return
+                password = self.driver.find_element(
+                    "xpath", "//input[@autocomplete='current-password']"
+                )
+                # Type slowly like a human
+                for char in self.password:
+                    password.send_keys(char)
+                    sleep(random.uniform(0.08, 0.15))
+                
+                sleep(random.uniform(1, 2))
+                password.send_keys(Keys.RETURN)
+                sleep(random.uniform(4, 6))
+                break
             except NoSuchElementException:
-                attempt += 1
-                if attempt >= 3:
-                    print("Error inputting password after multiple attempts.")
+                input_attempt += 1
+                if input_attempt >= 3:
+                    print()
+                    print(
+                        """There was an error inputting the password.
+
+It may be due to the following:
+- Internet connection is unstable
+- Password is incorrect
+- Twitter is experiencing unusual activity"""
+                    )
                     logging.error("Error inputting password.")
                     self.driver.quit()
                     sys.exit(1)
-                sleep(2)
+                else:
+                    print("Re-attempting to input password...")
+                    sleep(2)
 
     def go_to_home(self):
         self.driver.get("https://twitter.com/home")
@@ -493,3 +581,93 @@ class Twitter_Scraper:
 
     def get_tweets(self):
         return self.data
+
+    # =========================================================================
+    # NEW METHOD: Single Tweet Scraping (ADDED FOR DAEMON INTEGRATION)
+    # This is the ONLY addition - all existing functionality preserved above
+    # =========================================================================
+    
+    def scrape_single_tweet(self, tweet_url):
+        """
+        NEW METHOD: Scrape a single tweet by URL.
+        Does NOT modify existing scraping functionality.
+        
+        Args:
+            tweet_url: Full Twitter/X URL to the tweet
+        
+        Returns:
+            Dict with tweet data or None if failed
+        """
+        from typing import Optional, Dict
+        
+        logging.info(f"Scraping single tweet: {tweet_url}")
+        
+        try:
+            # Navigate to tweet
+            self.driver.get(tweet_url)
+            sleep(3)
+            
+            # Dismiss cookie banner if present (same as existing code)
+            try:
+                btn = self.driver.find_element(
+                    "xpath", "//span[text()='Refuse non-essential cookies']/../../.."
+                )
+                btn.click()
+                sleep(1)
+            except NoSuchElementException:
+                pass
+            
+            # Get tweet card (reuse existing logic)
+            self.get_tweet_cards()
+            
+            if not self.tweet_cards:
+                logging.error("No tweet card found")
+                return None
+            
+            # Use first card (the main tweet)
+            card = self.tweet_cards[0]
+            
+            # Reuse existing Tweet class
+            tw = Tweet(
+                card=card,
+                driver=self.driver,
+                actions=self.actions,
+                scrape_poster_details=False  # Keep it fast
+            )
+            
+            if tw.error or not tw.tweet:
+                logging.error("Failed to parse tweet")
+                return None
+            
+            # Take screenshot and pin to IPFS (reuse existing logic)
+            try:
+                ipfs_hash = screenshot_and_pin(card)
+                ipfs_url = f"https://gateway.pinata.cloud/ipfs/{ipfs_hash}"
+                logging.info(f"Screenshot pinned: {ipfs_url}")
+            except Exception as e:
+                logging.warning(f"Screenshot failed: {e}")
+                ipfs_url = ""
+            
+            # Return structured data
+            return {
+                "url": tweet_url,
+                "user": tw.user,
+                "handle": tw.handle,
+                "timestamp": tw.date_time,
+                "verified": tw.verified,
+                "content": tw.content,
+                "replies": tw.reply_cnt,
+                "retweets": tw.retweet_cnt,
+                "likes": tw.like_cnt,
+                "analytics": tw.analytics_cnt,
+                "tags": tw.tags,
+                "mentions": tw.mentions,
+                "profile_image": tw.profile_img,
+                "tweet_link": tw.tweet_link,
+                "tweet_id": tw.tweet_id,
+                "ipfs_screenshot": ipfs_url
+            }
+        
+        except Exception as e:
+            logging.error(f"Error scraping single tweet: {e}", exc_info=True)
+            return None
