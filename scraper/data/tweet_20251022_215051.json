@@ -1,0 +1,44 @@
+{
+  "tweet": {
+    "url": "https://x.com/Ashcryptoreal/status/1977255774788444420",
+    "content": "Sample tweet content for testing",
+    "user": "Test User",
+    "handle": "@testuser",
+    "timestamp": "2025-10-22T21:50:44.291622",
+    "verified": false,
+    "likes": "0",
+    "retweets": "0",
+    "replies": "0",
+    "tweet_id": "1977255774788444420",
+    "ipfs_screenshot": ""
+  },
+  "analysis": {
+    "deletion_likelihood": 0.1,
+    "analysis_text": "Score: 0.1 - As the given tweet content 'Sample tweet content for testing' seems to be very neutral and non-controversial, the likelihood of it being deleted due to controversial nature is very low.",
+    "sentiment": {
+      "financial": {
+        "label": "neutral",
+        "score": 0.9234930276870728,
+        "model": "finbert"
+      },
+      "twitter": {
+        "label": "neutral",
+        "score": 0.8655077815055847,
+        "model": "twitter-roberta"
+      },
+      "combined_label": "neutral",
+      "combined_score": 0.5,
+      "confidence": 0.8945004045963287,
+      "text_length": 32
+    },
+    "ecosystem": {
+      "token": "UNKNOWN",
+      "confidence": 0.0,
+      "ecosystem": "Unknown",
+      "metadata": {}
+    },
+    "combined_controversy": 0.06
+  },
+  "timestamp": "2025-10-22T21:50:51.290156",
+  "controversy_score": 0.06
+}
