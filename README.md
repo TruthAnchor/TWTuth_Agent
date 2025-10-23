@@ -128,3 +128,14 @@ The platform collects tweets using an advanced scraper, analyzes tweet content u
 MAINNET CONTRACTS:
 IP_DEPOSIT_CONTRACT_MAINNET=0x06Aa51D53e9a2218a934B5614B4D83AAEd694fFd
 TWEET_REGISTRY_CONTRACT=0x4CefBd73390F4738D2b94083dcE951745538e28B
+
+
+Testing:
+Mainnet txn immutable tweet submission test:
+ python tweet_submitter.py \
+  --url "https://x.com/Ashcryptoreal/status/1977255774788444420" \
+  --score 0.85 \
+  --force
+
+Test all blockchain integrations:
+python main_daemon.py --once
